@@ -1,4 +1,4 @@
-# EKS Anywhere COTS Hardware BIOS settings, Plugins Installation and Configurations needed for O-RAN CU/DU onboarding
+# EKS Anywhere - COTS Hardware BIOS settings, Plugins Installation and Configurations needed for O-RAN CU/DU onboarding
 
 This page describes all the pre-requisites - BIOS, Kernel settings on the EKS Anywhere (EKS-A) HPE DL110 workers, other plugin packages and configurations on EKS Anywhere needed for O-RAN CU/DU onboarding.
 

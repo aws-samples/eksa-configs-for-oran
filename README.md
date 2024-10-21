@@ -1,4 +1,4 @@
-# EKS Anywhere COTS Hardware BIOS settings, Plugins Installation and Configurations needed for O-RAN CU/DU onboarding
+# EKS Anywhere - COTS Hardware BIOS settings, Plugins Installation and Configurations needed for O-RAN CU/DU onboarding
 
 This page describes all the pre-requisites - BIOS, Kernel settings on the EKS Anywhere (EKS-A) HPE DL110 workers, other plugin packages and configurations on EKS Anywhere needed for O-RAN CU/DU onboarding.
 
@@ -56,7 +56,7 @@ default_hugepagesz=1G
 ```
 
 For Real-time processing it is important that the RAN workloads have full access to the CPU bandwidth for scheduling of Real-time tasks.
-To achieve the same the parameter `/proc/sys/kernel/sched_rt_runtime_us` must be set to `-1P so that Real-time tasks may use up to 100% of CPU times.
+To achieve the same the parameter `/proc/sys/kernel/sched_rt_runtime_us` must be set to `-1` so that Real-time tasks may use up to 100% of CPU times.
 
 To configure this parameter, follow the below instructions.
 
@@ -64,7 +64,7 @@ To configure this parameter, follow the below instructions.
 vi /etc/sysctl.conf
 ```
 
-Add the following line at the end
+Add the following line at the end.
 
 ```
 kernel.sched_rt_runtime_us = -1
@@ -89,14 +89,14 @@ Additional details on Real-time kernel on Ubuntu are described in the following 
 
 Additionally, CPU isolation configurations are needed on the Ubuntu OS by use of Cgroup v2 cpusets. The following commands are an example of how this can be configured on the Ubuntu OS -
 
-Set cpuset for system.slice and user.slice
+Set cpuset for `system.slice` and `user.slice`.
 
 ```sh
 systemctl set-property system.slice AllowedCPUs=0,1,2,32,33,34
 systemctl set-property user.slice AllowedCPUs=0,1,2,32,33,34
 ```
 
-For kubepods.slice, the configuration file is not automatically created, so create the file manually.
+For `kubepods.slice`, the configuration file is not automatically created, so create the file manually.
 
 ```sh
 systemctl set-property kubepods.slice AllowedCPUs=3-31,35-63
@@ -107,7 +107,7 @@ AllowedCPUs=3-31,35-63
 systemctl set-property kubepods.slice AllowedCPUs=3-31,35-63
 ```
 
-For init.scope, the configuration file based settings does not work, so it must be added the command to rc.local.
+For `init.scope`, the configuration file based settings does not work, so it must be added the command to rc.local.
 
 ```sh
 systemctl set-property init.scope AllowedCPUs=0,1,3,32,33,35
@@ -129,7 +129,7 @@ reservedSystemCPUs: 0,1,2,32,33,34
 
 ### 2.5. irqbalanced CPU isolation
 
-The following configuration is needed only for real-time performance therefore applicable only for DU EKS-A worker nodes. Edit irqbalanced configuration file as follows and configure the list of CPU's that are reserved for the system space.
+The following configuration is needed only for Real-time performance therefore applicable only for DU EKS-A worker nodes. Edit irqbalanced configuration file as follows and configure the list of CPU's that are reserved for the system space.
 
 ```sh
 vi /etc/default/irqbalance
@@ -149,8 +149,8 @@ systemctl restart irqbalance
 
 ## 3. SR-IOV/DPDK Plugin Installation on EKS Anywhere
 
-Intel Data Plane Development Kit (DPDK) comes with a set of libraries and drivers need for fast packet processing. These libraries can be built and installed on EKS Anywhere worker nodes using the following example commands -
-The steps involve downloading the DPDK library archive, install GO library for the Build, creating SR-IOV Virtual Functions (VFs) and binding them to the corresponding network interface.
+Intel Data Plane Development Kit (DPDK) comes with a set of libraries and drivers need for fast packet processing. These libraries can be built and installed on EKS-A worker nodes using the following example commands -
+The steps involve downloading the DPDK library archive, install Go library for the build, creating SR-IOV Virtual Functions (VFs) and binding them to the corresponding network interface.
 
 ### 3.1. DPDK installation on EKS-A worker nodes
 
@@ -178,7 +178,7 @@ cd usertools/
 
 ### 3.2. SR-IOV CNI Plugin installation
 
-DPDK uses the SR-IOV network for hardware-based I/O sharing. Following steps provide commands for the installation of SR-IOV Device plugin on the EKS Anywhere worker node. Please note that the SR-IOV binary build require “go” packages as a pre-requisite.
+DPDK uses the SR-IOV network for hardware-based I/O sharing. Following steps provide commands for the installation of SR-IOV Device plugin on the EKS-A worker node. Please note that the SR-IOV binary build require “go” packages as a pre-requisite.
 
 ```sh
 sudo -i # switch to root
@@ -212,14 +212,14 @@ cp ./build/sriov /opt/cni/bin
 
 ### 3.3. SR-IOV Virtual Function creation and binding
 
-The SR-IOV Network Device Plugin requires SR-IOV virtual functions (VFs) to be created on the EKS Anywhere worker node.
-e.g. To create 4 virtual functions on a physical interface (PF_NAME) run:
+The SR-IOV Network Device Plugin requires SR-IOV virtual functions (VFs) to be created on the EKS-A worker node.
+e.g. To create 4 virtual functions on a physical interface (PF_NAME), run the following command.
 
 ```sh
 echo 4 > /sys/class/net/${PF_NAME}/device/sriov_numvfs
 ```
 
-VFs creation can be validated using following command:
+VFs creation can be validated using following command.
 
 ```sh
 lspci | grep "Virtual Function"
@@ -235,7 +235,7 @@ Binding VFs to DPDK vfio-pci drivers.
 /opt/dpdk-21.11/usertools/dpdk-devbind.py -b vfio-pci 6c:19.0 6c:19.1 6c:19.2 6c:19.3
 ```
 
-Check if the vfio devices are bound against the DPDK driver using following command -
+Check if the vfio devices are bound against the DPDK driver using the following command.
 
 ```sh
 /opt/dpdk-21.11/usertools/dpdk-devbind.py -s
@@ -283,7 +283,7 @@ kubectl apply -f sriovdp-configmap.yaml
 kubectl apply -f sriov-network-device-plugin/deployments/sriovdp-daemonset.yaml
 ```
 
-Validate that the SR-IOV VF’s are applied against the EKS Anywhere worker node using the following command.
+Validate that the SR-IOV VF’s are applied against the EKS-A worker node using the following command.
 
 ```sh
 kubectl get node <eksa-node-name> -o json | jq '.status.allocatable'
@@ -316,7 +316,7 @@ Detailed instruction on Multus CNI plugin installation and Multus NetworkAttachm
 
 ### 5.1. Disable Chrony service
 
-Precision Timing Protocol (PTP) is needed for the DU workload to get more accurate timing information for O-RAN components (e.g. RU). DU application installs PTP plugin on EKS-A and to avoid the timing source conflicts between PTP and NTP (default on the platform), we need to disable chrony service platform with the following commands.
+Precision Timing Protocol (PTP) is required for the DU workload to get more accurate timing information for O-RAN components (e.g. RU). DU application installs PTP plugin on EKS-A and to avoid the timing source conflicts between PTP and NTP (default on the platform), we need to disable Chrony service on the platform with the following commands.
 
 ```sh
 systemctl stop chrony

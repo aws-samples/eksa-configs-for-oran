@@ -163,17 +163,17 @@ apt-get -y --allow-change-held-packages install git libnuma-dev libhugetlbfs-dev
 
 # with root-permission
 cd /opt/
-wget http://static.dpdk.org/rel/dpdk-21.11.tar.xz
-tar xf /opt/dpdk-21.11.tar.xz
+wget http://static.dpdk.org/rel/dpdk-23.11.tar.xz
+tar xf /opt/dpdk-23.11.tar.xz
 
-cd /opt/dpdk-21.11
+cd /opt/dpdk-23.11
 meson build
 ninja -C build
 ninja -C build install
 
 # check DPDK
 cd usertools/
-/opt/dpdk-21.11/usertools/dpdk-devbind.py -s
+/opt/dpdk-23.11/usertools/dpdk-devbind.py -s
 ```
 
 ### 3.2. SR-IOV CNI Plugin installation
@@ -181,25 +181,33 @@ cd usertools/
 DPDK uses the SR-IOV network for hardware-based I/O sharing. Following steps provide commands for the installation of SR-IOV Device plugin on the EKS Anywhere worker node. Please note that the SR-IOV binary build require “go” packages as a pre-requisite.
 
 ```sh
-sudo -i
-cd
-wget https://go.dev/dl/go1.16.linux-amd64.tar.gz
-tar -xvf go1.16.linux-amd64.tar.gz -C /usr/local/
-export PATH=$PATH:/usr/local/go/bin
-# check by go env
-go env
+sudo -i # switch to root
+```
 
+```sh
+# Install Go 1.18
+cd
+wget https://go.dev/dl/go1.18.linux-amd64.tar.gz
+tar -xvf go1.18.linux-amd64.tar.gz -C /usr/local/
+export PATH=$PATH:/usr/local/go/bin
+go env
+```
+
+```sh
+# Clone the SRIOV CNI repository
 git clone https://github.com/k8snetworkplumbingwg/sriov-cni.git
 cd sriov-cni
-git checkout v2.2
+git checkout v2.7.0
+go mod edit -go=1.18
+
+# Install dependencies
+go get -u github.com/onsi/ginkgo
+go get -u github.com/onsi/gomega
+
+# Build the project
 mkdir bin
-# download and install golint
-go get -u -v golang.org/x/lint/golint
-cp ~/go/bin/golint bin/
-go env -w GO111MODULE=off
 make
-cd build
-cp sriov /opt/cni/bin
+cp ./build/sriov /opt/cni/bin
 ```
 
 ### 3.3. SR-IOV Virtual Function creation and binding

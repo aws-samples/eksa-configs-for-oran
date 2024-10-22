@@ -232,13 +232,13 @@ lspci | grep "Virtual Function"
 Binding VFs to DPDK vfio-pci drivers.
 
 ```sh
-/opt/dpdk-21.11/usertools/dpdk-devbind.py -b vfio-pci 6c:19.0 6c:19.1 6c:19.2 6c:19.3
+/opt/dpdk-23.11/usertools/dpdk-devbind.py -b vfio-pci 6c:19.0 6c:19.1 6c:19.2 6c:19.3
 ```
 
 Check if the vfio devices are bound against the DPDK driver using the following command.
 
 ```sh
-/opt/dpdk-21.11/usertools/dpdk-devbind.py -s
+/opt/dpdk-23.11/usertools/dpdk-devbind.py -s
 ```
 
 ### 3.4 SR-IOV Network Device Plugin installation

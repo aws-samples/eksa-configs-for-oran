@@ -47,9 +47,9 @@ vfio_pci.enable_sriov=1
 
 Edit the following lines. Comment the existing GRUB_CMDLINE_LINUX_DEFAULT variable and add a new line as shown below and append the parameter values as shown below -
 
-```
+```sh
 #GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
-GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt vfio_pci.enable_sriov=1 vfio_pci.disable_idle_d3=1 usbcore.autosuspend=-1 selinux=0 enforcing=0 nmi_watchdog=0 crashkernel=auto softlockup_panic=0 audit=0 mce=off hugepagesz=1G hugepages=40 default_hugepagesz=1G kthread_cpus=0,1,3,32,33,35 irqaffinity=0,1,3,32,33,35 skew_tick=1 isolcpus=managed_irq,2,4-31,34,36-63 intel_pstate=disable nosoftlockup tsc=nowatchdog nohz=on nohz_full=2,4-31,34,36-63 rcu_nocbs=2,4-31,34,36-63 rcu_nocb_poll idle=poll pci=realloc=on"
+GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt vfio_pci.enable_sriov=1 hugepagesz=1G hugepages=40 default_hugepagesz=1G kthread_cpus=0,1,3,32,33,35 irqaffinity=0,1,3,32,33,35 isolcpus=managed_irq,2,4-31,34,36-63 nohz=on nohz_full=2,4-31,34,36-63 rcu_nocbs=2,4-31,34,36-63 rcu_nocb_poll"
 ```
 
 Save the file and exit - `:wq!`
@@ -61,8 +61,7 @@ update-grub
 shutdown -r now
 ```
 
-After the node reboots - login into the worker node and validate if the settings have taken effect with the command - `cat /proc/cmdline`
-
+After the node reboots, login into the worker node and validate if the settings have taken effect with the command - `cat /proc/cmdline`
 
 ### 2.2 GRUB config for Hugepages and Real-time processing kernel parameters
 
@@ -89,7 +88,7 @@ Add the following line at the end.
 kernel.sched_rt_runtime_us = -1
 ```
 
-Apply parameter.
+Apply the configuration using the following command
 
 ```sh
 sysctl -p

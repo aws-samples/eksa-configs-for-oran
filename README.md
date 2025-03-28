@@ -332,6 +332,8 @@ kubectl get daemonsets.apps -n kube-system
 
 Detailed instruction on Multus CNI plugin installation and Multus NetworkAttachmentDefinition CRD configuration for IPVLAN type is described in the following [link](https://anywhere.eks.amazonaws.com/docs/clustermgmt/networking/cluster-multus/).
 
+Note that depending on the number of your O-RAN CNF pods and their networking requirements, you may need to increase the default memory request/limit value of Multus daemonset from 50Mb to more, to avoid the OOM issue.
+
 ## 5. Disable Chrony on EKS-A Worker assigned for DU workload
 
 ### 5.1. Disable Chrony service

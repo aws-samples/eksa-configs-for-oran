@@ -323,10 +323,10 @@ Detailed instructions for setup of SR-IOV Network Device Plugin for Kubernetes i
 ## 4. Multus CNI Plugin installation on EKS Anywhere Cluster
 
 Installation of Multus plugin is required on the EKS Anywhere cluster when the RAN workloads needs additional Multus interfaces for network separation requirements.
-The following commands could be used for the Multus DaemonSet installation on the EKS Anywhere cluster.
+The following commands could be used for the Multus DaemonSet (thick-version) installation on the EKS Anywhere cluster.
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/master/deployments/multus-daemonset.yml
+kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/master/deployments/multus-daemonset-thick.yml
 kubectl get daemonsets.apps -n kube-system
 ```
 

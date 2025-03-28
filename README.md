@@ -54,6 +54,8 @@ GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt vfio_pci.enable_sriov=1 huge
 
 Save the file and exit - `:wq!`
 
+Note that depending on your base Ubuntu OS image, you may need to modify the `/etc/default/grub.d/50-cloudimg-settings.cfg` file instead, but add the same GRUB_CMDLINE_LINUX_DEFAULT parameter as above. 
+
 Run the following command to apply the new grub config and then perform a reboot of the worker node.
 
 ```sh

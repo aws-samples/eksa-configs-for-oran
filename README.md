@@ -334,6 +334,17 @@ Detailed instruction on Multus CNI plugin installation and Multus NetworkAttachm
 
 Note that depending on the number of your O-RAN CNF pods and their networking requirements, you may need to increase the default memory request/limit value of Multus daemonset from 50Mb to more, to avoid the OOM issue.
 
+In addition, due to the default settig of the EKS-A primary CNI (i.e. Cilium) is cni-exclusive=true, in order to have Multus CNI coexist with Cilium without conflict, we need to update the Cilium's cni-exclusive flag to false. Example commands below.
+
+```
+# update the cilium configuration
+kubectl -n kube-system patch configmap cilium-config --type merge -p '{"data":{"cni-exclusive":"false"}}'
+kubectl -n kube-system patch daemonset cilium --type=json -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/lifecycle/postStart/exec/command/2", "value": "/cni-install.sh --enable-debug=false --cni-exclusive=false --log-file=/var/run/cilium/cilium-cni.log"}]'
+
+# restart cilium daemonset to make the changes effective
+kubectl rollout restart daemonset cilium -n kube-system
+```
+
 ## 5. Disable Chrony on EKS-A Worker assigned for DU workload
 
 ### 5.1. Disable Chrony service

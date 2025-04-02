@@ -54,6 +54,8 @@ GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on iommu=pt vfio_pci.enable_sriov=1 huge
 
 Save the file and exit - `:wq!`
 
+Note that depending on your base Ubuntu OS image, you may need to modify the `/etc/default/grub.d/50-cloudimg-settings.cfg` file instead, but add the same GRUB_CMDLINE_LINUX_DEFAULT parameter as above. 
+
 Run the following command to apply the new grub config and then perform a reboot of the worker node.
 
 ```sh
@@ -321,14 +323,27 @@ Detailed instructions for setup of SR-IOV Network Device Plugin for Kubernetes i
 ## 4. Multus CNI Plugin installation on EKS Anywhere Cluster
 
 Installation of Multus plugin is required on the EKS Anywhere cluster when the RAN workloads needs additional Multus interfaces for network separation requirements.
-The following commands could be used for the Multus DaemonSet installation on the EKS Anywhere cluster.
+The following commands could be used for the Multus DaemonSet (thick-version) installation on the EKS Anywhere cluster.
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/master/deployments/multus-daemonset.yml
+kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/master/deployments/multus-daemonset-thick.yml
 kubectl get daemonsets.apps -n kube-system
 ```
 
 Detailed instruction on Multus CNI plugin installation and Multus NetworkAttachmentDefinition CRD configuration for IPVLAN type is described in the following [link](https://anywhere.eks.amazonaws.com/docs/clustermgmt/networking/cluster-multus/).
+
+Note that depending on the number of your O-RAN CNF pods and their networking requirements, you may need to increase the default memory request/limit value of Multus daemonset from 50Mb to more, to avoid the OOM issue.
+
+In addition, due to the default settig of the EKS-A primary CNI (i.e. Cilium) is cni-exclusive=true, in order to have Multus CNI coexist with Cilium without conflict, we need to update the Cilium's cni-exclusive flag to false. Example commands below.
+
+```
+# update the cilium configuration
+kubectl -n kube-system patch configmap cilium-config --type merge -p '{"data":{"cni-exclusive":"false"}}'
+kubectl -n kube-system patch daemonset cilium --type=json -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/lifecycle/postStart/exec/command/2", "value": "/cni-install.sh --enable-debug=false --cni-exclusive=false --log-file=/var/run/cilium/cilium-cni.log"}]'
+
+# restart cilium daemonset to make the changes effective
+kubectl rollout restart daemonset cilium -n kube-system
+```
 
 ## 5. Disable Chrony on EKS-A Worker assigned for DU workload
 
